@@ -1,14 +1,16 @@
-import qiskit.circuit
-from qiskit.circuit import QuantumCircuit, QuantumRegister
+from qiskit.circuit import QuantumCircuit, QuantumRegister, AncillaRegister
 from qiskit.circuit.library import DiagonalGate, UnitaryGate
+from qiskit.quantum_info import Operator 
+from numpy.typing import ArrayLike, NDArray
 import numpy as np
 import pennylane as qp
 import math
 import pyqsp
 from pyqsp import angle_sequence
+import matplotlib.pyplot as plt
 
 # Adapted from https://pennylane.ai/demos/tutorial_apply_qsvt to work with Sign function
-def get_sign_phases(degree=41 :int,delta=15 :float,max_scale=0.99 :float)
+def get_sign_phases(degree:int=41,delta:int=15,max_scale:float=0.99) -> tuple[list[float], float]:
     ''' Returns phases of the sign operator approximated to specified degree,
     using erf(delta * x). Phases in format suitable to apply pennyline qp.QSVT
     after converting using qp.PCPhase, or with custom qiskitQSVTgate()'''
@@ -24,7 +26,7 @@ def get_sign_phases(degree=41 :int,delta=15 :float,max_scale=0.99 :float)
     return phi_qsvt, scale
 
 # from https://pennylane.ai/demos/tutorial_apply_qsvt
-def check_sign_approx(phases,scale):
+def check_sign_approx(phases: list[float], scale: float) -> None:
     x_vals = np.linspace(-1, 1, 50)
     target_y_vals = [scale * np.sign(x) for x in np.linspace(-1, 1, 50)]
 
@@ -46,7 +48,7 @@ def check_sign_approx(phases,scale):
     plt.legend()
     plt.show()
 
-def qiskitPCPhase(phi, dim: int, num_qubits: int):
+def qiskitPCPhase(phi: float, dim: int, num_qubits: int) -> DiagonalGate:
     '''Pennylane PCPhase for qiskit: see
     https://docs.pennylane.ai/en/stable/code/api/pennylane.PCPhase.html'''
     qc = QuantumCircuit(num_qubits)
@@ -56,7 +58,7 @@ def qiskitPCPhase(phi, dim: int, num_qubits: int):
     PCPhasegate.label= r'$\Pi_{\phi}$'
     return PCPhasegate
 
-def qiskitMatrix_to_QSVTgate(matrix, phases ,encoded:bool=False ):
+def qiskitMatrix_to_QSVTgate(matrix:ArrayLike, phases: list[float] ,encoded=False) -> UnitaryGate:
     """Quantum singular value transformation circuit for qiskit,
     given Hermitian A or its block encoding Unitary and specified list of phases.
     Requires pennylane import if not alread block encoded"""
@@ -76,7 +78,6 @@ def qiskitMatrix_to_QSVTgate(matrix, phases ,encoded:bool=False ):
 
     qsvt_circuit = QuantumCircuit(quantum_reg,ancilla_reg)
 
-
     iterations = int(len(phases))
 
     qsvt_circuit.append(qiskitPCPhase(phases[0], 1, 1),ancilla_reg)
@@ -89,20 +90,19 @@ def qiskitMatrix_to_QSVTgate(matrix, phases ,encoded:bool=False ):
         else:
                 qsvt_circuit.append(adjoint_gate,range(numqubits))
                 qsvt_circuit.append(qiskitPCPhase(phases[k], 1, 1),ancilla_reg)
-    return qsvt_circuit
+    return qsvt_circuit.to_gate()
 
-def qiskitCircuit_to_QSVTgate(circuit,phases,AncillaFirst = False):
+def qiskitCircuit_to_QSVTCircuit(circuit:QuantumCircuit, phases:list[float], ancilla_index:int = None) -> QuantumCircuit:
     """Quantum singular value transformation circuit for qiskit,
-    given a circuit encoding a block encoded Unitary and specified list of phases."""
+    given a circuit encoding a block encoded Unitary and specified list of phases.
+    Polynomial from which phases were obtained must be strictly odd"""
 
     qubitcount = circuit.num_qubits
 
-    if AncillaFirst == True:
-        ancilla_index = 0
-    else:
+    if ancilla_index == None:
         ancilla_index = qubitcount-1
 
-    encoder_circuit = circuit
+    encoder_circuit = circuit.to_gate(label=circuit.name)
     
     adjoint_circuit = encoder_circuit.inverse()
 
