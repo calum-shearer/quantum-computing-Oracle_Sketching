@@ -1,4 +1,4 @@
-In this reposIn this notebook we implement toy examples for the Oracle Sketching procedure from appendix D of the paper "Exponential quantum advantage in processing massive classical data" by Haimeng Zhao, Alexander Zlokapa, Hartmut Neven, Ryan Babbush, John Preskill, Jarrod R. McClean, Hsin-Yuan Huang (https://arxiv.org/abs/2604.07639). We build qiskit functions that produce objects of the `QuantumCircuit` class for the following:
+In this repository we implement toy examples for the Oracle Sketching procedure from appendix D of the paper "Exponential quantum advantage in processing massive classical data" by Haimeng Zhao, Alexander Zlokapa, Hartmut Neven, Ryan Babbush, John Preskill, Jarrod R. McClean, Hsin-Yuan Huang (https://arxiv.org/abs/2604.07639). We build qiskit functions that produce objects of the `QuantumCircuit` class for the following:
 
 1. Oracle Sketching for IID data of a Boolean function (Appendix D.2)
 1. Oracle Sketching for IID data of a multi-bit output function (Appendix D.4.a)
