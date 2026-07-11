@@ -3,7 +3,7 @@ In this repository we implement toy examples for the Oracle Sketching procedure 
 1. Oracle Sketching for IID data of a Boolean function (Appendix D.2)
 1. Oracle Sketching for IID data of a multi-bit output function (Appendix D.4.a)
 1. Element Oracle Sketching for sparse matrices (Appendix D.5.b)
-1. Row and Column Index Oracle Sketching for dense matrices (Appendix D.5.b)
+1. Row and Column Index Oracle Sketching for sparse matrices (Appendix D.5.b)
 
 The file `OracleSketching.ipynb` contains code for the above examples, along with qiskit circuit diagrams and tests to verify the correctness of the circuits.
 
